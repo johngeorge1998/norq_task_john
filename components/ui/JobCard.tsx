@@ -13,6 +13,7 @@ import { Job } from "@/lib/types";
 import { useAtom } from "jotai";
 import { favoriteJobsAtom, toggleFavoriteAtom } from "@/lib/store";
 import { IconHeart } from "@tabler/icons-react";
+import { usePathname } from "next/navigation";
 
 interface JobCardProps {
   job: Job;
@@ -21,8 +22,16 @@ interface JobCardProps {
 export default function JobCard({ job }: JobCardProps) {
   const [favorites] = useAtom(favoriteJobsAtom);
   const [, toggleFavorite] = useAtom(toggleFavoriteAtom);
+  const pathname = usePathname();
 
   const isFavorite = favorites.some((fav) => fav.slug === job.slug);
+  const isFavoritesPage = pathname === "/favorites";
+
+  const truncationLimit = isFavoritesPage ? 90 : 40;
+  const truncatedTitle =
+    job.title.length > truncationLimit
+      ? `${job.title.slice(0, truncationLimit)}...`
+      : job.title;
 
   return (
     <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.1 }}>
@@ -32,9 +41,7 @@ export default function JobCard({ job }: JobCardProps) {
             <Link href={`/jobs/${job.slug}`}>
               <Tooltip label={job.title} withArrow>
                 <Title order={3} style={{ cursor: "pointer" }}>
-                  {job.title.length > 50
-                    ? `${job.title.slice(0, 37)}...`
-                    : job.title}
+                  {truncatedTitle}
                 </Title>
               </Tooltip>
             </Link>
